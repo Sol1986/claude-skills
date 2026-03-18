@@ -1,5 +1,5 @@
 {
-  "name": "mindstudio-To-API-custom-function-builder",
+  "name": "mindstudio-to-api-custom-function-builder",
   "version": "1.1.0",
   "displayName": "MindStudio To API Custom Function Builder",
   "description": "Generates complete MindStudio Run Function integrations (Code Tab, Configuration Tab, Test Data Tab) for any API. Includes Sandbox-safe patterns, auth templates, and output variable best practices.",

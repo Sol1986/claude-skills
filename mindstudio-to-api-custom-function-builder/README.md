@@ -12,6 +12,8 @@ Point Claude at any API — paste the docs URL, a code snippet, or just describe
 - **Configuration Tab** — the config JSON that renders fields in the MindStudio block panel (API key, inputs, output variable names)
 - **Test Data Tab** — realistic test values so you can click Test immediately
 
+If you paste API docs or a code example, Claude extracts everything it needs from that directly and only asks for what's missing.
+
 ---
 
 ## Example usage
@@ -30,23 +32,24 @@ Point Claude at any API — paste the docs URL, a code snippet, or just describe
 
 ### Code Tab
 - Reads all configurable values from `ai.config.*`
-- Reads workflow variables from `ai.vars.*`
+- `inputVariable` fields are resolved by MindStudio before the code runs — Claude reads them as `ai.config.fieldName` directly, never via `ai.vars`
+- `outputVariableName` fields hold the name of a user-chosen workflow variable — Claude writes outputs as `ai.vars[ai.config.outputVarName]` so results land where you expect
 - Validates required fields with clear error messages
 - Uses `ai.log()` to show progress during long calls
 - Wraps fetch in try/catch with readable error output
-- Uses `ai.vars[ai.config.outputVarName]` so output variable names are user-controlled
-- Builds query strings manually (no `URLSearchParams` — not available in Sandbox)
+- Builds query strings manually — no `URLSearchParams` (not available in Sandbox)
 
 ### Configuration Tab
 - `secret` type for API keys (never plain text)
 - `inputVariable` type for fields that accept `{{workflow variables}}`
-- `select` type with options for fixed-choice fields
-- `outputVariableName` type so users name their own output variables
+- `select` type with options for fixed-choice fields (model names, effort levels, etc.)
+- `outputVariableName` type so you name your own output variables
 - `helpText` on every field
 
 ### Test Data Tab
 - Mirrors every `ai.config.*` variable used in the code
-- Uses realistic placeholder values
+- `inputVariable` values are set directly in `config`, not in `vars` — matching how MindStudio resolves them at runtime
+- Uses realistic placeholder values, not "test123"
 - Ready to run immediately after pasting your API key
 
 ---
@@ -54,14 +57,14 @@ Point Claude at any API — paste the docs URL, a code snippet, or just describe
 ## Installation
 
 ### Claude.ai
-1. Download `mindstudio-function-builder.skill`
+1. Download `mindstudio-to-api-custom-function-builder.skill`
 2. Go to **Settings → Customize → Skills**
 3. Upload the `.skill` file
 
 ### Claude Code
 ```bash
-mkdir -p ~/.claude/skills/mindstudio-function-builder
-cp SKILL.md ~/.claude/skills/mindstudio-function-builder/SKILL.md
+mkdir -p ~/.claude/skills/mindstudio-to-api-custom-function-builder
+cp SKILL.md ~/.claude/skills/mindstudio-to-api-custom-function-builder/SKILL.md
 ```
 
 ---
@@ -77,8 +80,9 @@ The skill is aware of what's available in MindStudio's Sandbox execution environ
 | `ai.config`, `ai.vars`, `ai.log()` | `process`, `require` |
 | `ai.searchGoogle()`, `ai.scrapeUrl()` | `crypto`, `fs`, `path` |
 | `encodeURIComponent()` | npm packages |
+| Python via Pyodide | pip installs |
 
-For functions that need npm packages, the skill will use the **Virtual Machine** environment instead, which requires exporting a `handler` function.
+For functions that need npm packages, the skill will use the **Virtual Machine** environment instead, which requires exporting a `handler` function and has a ~5s startup cost.
 
 ---
 
@@ -94,10 +98,22 @@ For functions that need npm packages, the skill will use the **Virtual Machine**
 
 ---
 
+## Common mistakes the skill avoids
+
+- Using `ai.vars[ai.config.fieldName]` for input fields (wrong — inputs are already resolved strings in `ai.config`)
+- Using `URLSearchParams` in Sandbox (not available — query strings are built manually)
+- Using `Buffer`, `process`, `require`, `crypto`, or `fs` in Sandbox (Node.js only)
+- Using `query` instead of `input` for You.com APIs
+- Using backtick template literals to inject `{{variables}}` into HTML (use `<script type="application/json">` instead)
+- Hardcoding API keys in the Code Tab
+- Using `ai.vars.outputName = value` when the output variable name is user-configured
+
+---
+
 ## File structure
 
 ```
-mindstudio-function-builder/
+mindstudio-to-api-custom-function-builder/
 ├── SKILL.md          — Claude skill instructions (install this)
 ├── README.md         — This file
 └── skill.json        — Metadata for skill registries

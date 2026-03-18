@@ -1,5 +1,5 @@
 ---
-name: mindstudio-To-API-custom-function-builder
+name: mindstudio-to-api-custom-function-builder
 description: Build a complete MindStudio Run Function integration for any API the user wants to connect. Use this skill whenever the user mentions MindStudio, wants to connect an API to a workflow, asks for a "Run Function", wants to call an external service from MindStudio, or says things like "I want to use X API in MindStudio", "build me a MindStudio function for X", "how do I connect X to MindStudio", or "write me a script for MindStudio". Always use this skill — do not try to wing it from memory.
 ---
 

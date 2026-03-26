@@ -11,6 +11,48 @@ The Interface Designer outputs React components that are compiled and deployed d
 
 ---
 
+## The Interface Designer Environment
+
+Before writing or reviewing any code, understand how the Interface Designer works. This context governs every decision.
+
+### Interface Designer UI — Know These Controls
+
+| Tab / Control | What It Does | When You Use It |
+|---|---|---|
+| **Chat Tab** | Vibe-coding entry point. Describe your UI in natural language; the AI generates it. | Starting a new interface or refining with iterative instructions |
+| **Code Tab** | Full React coding environment — edit JSX, install npm packages, extend logic | After AI generation when you need direct code edits or custom packages |
+| **Logs Tab** | Real-time activity feed — debug errors, track package installs, watch runtime output | When diagnosing compilation or runtime issues |
+| **Live Preview** | Renders changes instantly as you edit or vibe-code | Continuously — use it to verify layout, interactions, and responsive behavior |
+| **Model Selector** | Chooses which AI model powers interface generation (bottom-right of Interface Designer) | When you need to switch models for generation quality |
+| **Start** | Spins up the dev environment and live preview session | At the beginning of every session |
+| **Stop** | Ends the current preview session to free resources | When stepping away or done editing |
+| **Compile** | Builds and deploys the final interface into the agent workflow | LAST step — must be clicked before the interface is live in production |
+
+### Critical Workflow Sequence
+
+Every interface you build MUST follow this sequence:
+
+1. Add a **User Input block** to the MindStudio workflow
+2. In **Optional Settings**, switch **Interface** from Default → **Custom (Beta)**
+3. Click **Configure Interface** to open the Interface Designer
+4. Use the **Chat Tab** to describe the interface, or the **Code Tab** to write/edit directly
+5. Click **Start** to spin up the dev environment and see the **Live Preview**
+6. Iterate using vibe-coding or direct code edits; check the **Logs Tab** for errors
+7. Click **Compile** to build and deploy — the interface is now live in the agent
+
+> **Never forget Compile.** An interface that hasn't been compiled is not deployed. Remind the user to click Compile as the final step of every build.
+
+### The Code Tab Capabilities
+
+When working in the Code Tab:
+- **Full React environment**: Write JSX, manage components, structure UI as in any React project
+- **npm packages**: Install any package directly from the Code Tab — no local setup needed
+- **Hot reloading**: Changes reflect in Live Preview instantly — no restart required
+- **Advanced customization**: Add API integrations, validation logic, dynamic data loading, third-party libraries
+
+---
+
+
 ## Phase 1: Discovery — Always Interview First
 
 **Never jump straight to code.** Before any design or implementation work, run a focused discovery conversation. Ask one question at a time. Prefer multiple-choice when possible. The goal is to understand purpose, user, constraints, and aesthetic direction before a single line of code is written.
@@ -279,6 +321,101 @@ The bridge exposes:
 
 ```tsx
 import { submit, useIsRunning } from './bridge'
+```
+
+#### Full Bridge API — All Available Exports
+
+| Export | Type | Purpose |
+|---|---|---|
+| `submit(values)` | function | Sends form data to the workflow and advances to the next block |
+| `useIsRunning()` | hook | Returns `true` while the workflow is processing after submission |
+| `useTemplateVariables()` | hook | Returns current values of variables already set earlier in the workflow |
+| `uploadFile(file)` | function | Uploads a File object and returns a CDN URL string |
+| `requestFile(options?)` | function | Prompts the user to pick a file or media from their MindStudio library |
+
+#### useTemplateVariables — Reading Upstream Workflow Context
+
+Use this when the interface needs to display or react to variables already set earlier in the workflow:
+
+```tsx
+import { submit, useIsRunning, useTemplateVariables } from './bridge'
+
+export default function Interface() {
+  const isRunning = useIsRunning()
+  const vars = useTemplateVariables() // e.g. { user_name: 'Alice', plan: 'pro' }
+
+  return (
+    <div>
+      <h2>Welcome, {vars.user_name}</h2>
+      {/* pre-fill or customize UI based on upstream variables */}
+    </div>
+  )
+}
+```
+
+#### uploadFile — User-Provided File Inputs
+
+Use `uploadFile` when the user provides a file via a standard HTML file input. It returns a CDN URL you pass to the workflow:
+
+```tsx
+import { submit, useIsRunning, uploadFile } from './bridge'
+
+export default function Interface() {
+  const isRunning = useIsRunning()
+  const [fileUrl, setFileUrl] = useState<string | null>(null)
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = await uploadFile(file) // returns CDN URL string
+    setFileUrl(url)
+  }
+
+  const handleSubmit = () => {
+    submit({ file_url: fileUrl })
+  }
+
+  return (
+    <div>
+      <input type="file" onChange={handleFile} />
+      <button onClick={handleSubmit} disabled={isRunning || !fileUrl}>
+        {isRunning ? 'Processing...' : 'Submit'}
+      </button>
+    </div>
+  )
+}
+```
+
+#### requestFile — MindStudio Media Library Picker
+
+Use `requestFile` when you want the user to choose a file from their MindStudio media library:
+
+```tsx
+import { submit, useIsRunning, requestFile } from './bridge'
+
+export default function Interface() {
+  const isRunning = useIsRunning()
+  const [selectedFile, setSelectedFile] = useState<{ url: string } | null>(null)
+
+  const handlePickFile = async () => {
+    const file = await requestFile({ accept: 'image/*' })
+    setSelectedFile(file)
+  }
+
+  const handleSubmit = () => {
+    submit({ image_url: selectedFile?.url })
+  }
+
+  return (
+    <div>
+      <button onClick={handlePickFile} type="button">Choose Image</button>
+      {selectedFile && <img src={selectedFile.url} alt="Selected" />}
+      <button onClick={handleSubmit} disabled={isRunning || !selectedFile}>
+        {isRunning ? 'Processing...' : 'Submit'}
+      </button>
+    </div>
+  )
+}
 ```
 
 **Never use:**
@@ -920,6 +1057,8 @@ Run every item before delivering code. No exceptions.
 - [ ] Every input field is wired to its confirmed MindStudio variable name — no invented or generic names (`input1`, `field_value`, etc.)
 - [ ] State keys match the exact variable names confirmed during discovery
 - [ ] Variable reference comment block at the top of the component lists all output variables with their types and descriptions
+- User has been instructed to click **Compile** in the Interface Designer to deploy the interface
+- User has been instructed to verify in the **Logs Tab** that no runtime errors exist before compiling
 
 ---
 
@@ -968,6 +1107,47 @@ Run every item before delivering code. No exceptions.
 | md | 768px | Side-by-side |
 | lg | 1024px | Full multi-col |
 | xl | 1280px | Max-width constrained |
+
+---
+
+## Phase 13: Compile & Deploy — The Final Step
+
+This phase is mandatory. An interface that hasn't been compiled is not deployed. No exceptions.
+
+### After the Build Is Complete
+
+Once all 12 phases are done and the pre-delivery checklist passes, walk the user through the final steps:
+
+1. **Review in Live Preview** — Open the Interface Designer and click **Start** if not already running. Walk through the full interface once in the Live Preview panel. Test every input, every step, every validation state.
+
+2. **Check the Logs Tab** — Open the Logs Tab and look for any runtime errors, warnings, or failed package installs. Address anything that appears before compiling.
+
+3. **Click Compile** — In the Interface Designer, click the **Compile** button (bottom dev controls area). This builds and packages the interface and deploys it to the agent.
+
+4. **Confirm deployment** — After compiling, the interface is live. The User Input block in the workflow will now render the custom interface instead of the default form.
+
+5. **Test in the agent** — Run the full agent workflow end-to-end to confirm the interface renders, all variables are passed correctly, and the workflow advances after submission.
+
+### Compile Checklist
+
+Before clicking Compile, confirm:
+- [ ] Live Preview shows the correct final UI
+- [ ] All form inputs are wired to their confirmed MindStudio variable names
+- [ ] `submit()` is called with all variable values on final submission
+- [ ] `useIsRunning()` from bridge is used for the submit button loading state
+- [ ] No console errors in the Logs Tab
+- [ ] Responsive layout verified at 375px and desktop widths
+- [ ] Accessibility checks passed (labels, focus states, contrast)
+
+### What Compile Does
+
+When you click Compile, MindStudio:
+- Bundles the React component and its dependencies
+- Uploads the compiled bundle to MindStudio's CDN
+- Attaches the interface to the User Input block in the workflow
+- Makes the interface available in production when the agent runs
+
+> **Never** send code to the user without reminding them that Compile is required. Even perfect code that hasn't been compiled is invisible to the workflow.
 
 ---
 

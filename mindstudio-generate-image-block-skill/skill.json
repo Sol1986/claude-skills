@@ -1,0 +1,63 @@
+{
+  "name": "mindstudio-generate-image-block-skill",
+  "version": "1.0.0",
+  "description": "Write, configure, and optimize prompts for MindStudio's Generate Image block. Covers prompt structure, dynamic variables, model-specific frameworks, Source Image (img2img), CDN transformations, and downstream URL handling.",
+  "author": "Sol",
+  "license": "MIT",
+  "tags": [
+    "mindstudio",
+    "image-generation",
+    "prompt-engineering",
+    "grok",
+    "gemini",
+    "seedream",
+    "luma-photon",
+    "dall-e",
+    "flux",
+    "img2img",
+    "cdn",
+    "workflow"
+  ],
+  "triggers": [
+    "generate image in MindStudio",
+    "write an image prompt",
+    "optimize image prompt",
+    "image generation block",
+    "Generate Image block",
+    "source image",
+    "image to image workflow",
+    "img2img MindStudio",
+    "CDN image URL",
+    "image output variable",
+    "Grok image prompt",
+    "Gemini image prompt",
+    "Seedream prompt",
+    "Photon 1 prompt",
+    "Luma image generation"
+  ],
+  "models_supported": [
+    "Grok Imagine (xAI)",
+    "Gemini Nano Banana (Google)",
+    "Seedream v4.5 (ByteDance)",
+    "Luma Photon 1 (Luma Labs)",
+    "DALL-E 3 (OpenAI)",
+    "Flux (Black Forest Labs)",
+    "Universal / unlisted models"
+  ],
+  "files": {
+    "skill": "SKILL.md",
+    "readme": "README.md",
+    "examples": "examples.md",
+    "metadata": "skill.json"
+  },
+  "compatibility": {
+    "platform": "MindStudio",
+    "block": "Generate Image Block",
+    "requires": []
+  },
+  "related_skills": [
+    "mindstudio-generate-text-block-prompting-skill",
+    "mindstudio-http-request-block",
+    "mindstudio-interface-designer-skill"
+  ]
+}

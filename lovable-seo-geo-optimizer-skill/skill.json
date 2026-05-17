@@ -1,0 +1,47 @@
+{
+  "name": "lovable-seo-geo-optimizer-skill",
+  "version": "1.0.0",
+  "description": "Audit and fully implement SEO and GEO (AI discoverability) across a Lovable project. Use this skill whenever someone wants to optimize their Lovable site for search engines or AI tools, improve Google rankings, add structured data/schema, create a sitemap or robots.txt, add Open Graph tags, build an llm.html page for AI discovery, or says things like 'optimize my Lovable site', 'add SEO to my project', 'make my site discoverable by AI', 'set up schema markup', 'improve my Lighthouse score', or 'help ChatGPT/Perplexity find my site'. Always use this skill -- do not attempt to implement SEO from memory. Even if the request seems narrow, use this skill to ensure nothing is missed.",
+  "author": "Sol",
+  "skill_file": "SKILL.md",
+  "tags": [
+    "SEO",
+    "GEO",
+    "Lovable",
+    "AI discoverability",
+    "schema",
+    "structured data",
+    "sitemap",
+    "robots.txt",
+    "Open Graph",
+    "Lighthouse",
+    "web performance",
+    "llm.html",
+    "no-code"
+  ],
+  "trigger_contexts": [
+    "User wants to optimize a Lovable site for search engines",
+    "User wants to add SEO to a Lovable project",
+    "User wants their site to appear in ChatGPT, Perplexity, or Claude search results",
+    "User asks about sitemap, robots.txt, canonical tags, or meta tags",
+    "User wants to add Open Graph or Twitter card tags",
+    "User wants to improve Lighthouse SEO score",
+    "User wants to create an llm.html or AI reference page",
+    "User asks about structured data or JSON-LD schema",
+    "User wants to set up Google Search Console for a Lovable site"
+  ],
+  "compatible_platforms": [
+    "Claude.ai",
+    "MindStudio",
+    "Claude API"
+  ],
+  "dependencies": [],
+  "output_types": [
+    "sitemap.xml",
+    "robots.txt",
+    "llm.html",
+    "JSON-LD schema blocks",
+    "HTML meta tag snippets",
+    "Audit report"
+  ]
+}
